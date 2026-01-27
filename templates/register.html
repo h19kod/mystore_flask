@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow rounded-4 p-4 text-end">
+            <h2 class="fw-bold mb-4 text-center">إنشاء حساب جديد ✨</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success rounded-pill fw-bold">تسجيل</button>
+                </div>
+            </form>
+            <div class="text-center mt-3">
+                <p>لديك حساب بالفعل؟ <a href="/login/">سجل دخولك هنا</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

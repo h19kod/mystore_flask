@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}الرئيسية - متجري المتطور{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div id="mainSlider" class="carousel slide shadow-sm rounded-4 overflow-hidden mb-5" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#mainSlider" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#mainSlider" data-bs-slide-to="1"></button>
+        </div>
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="bg-primary d-flex align-items-center justify-content-center text-white text-center" style="height: 350px; background: linear-gradient(45deg, #0d6efd, #0dcaf0);">
+                    <div>
+                        <h1 class="fw-bold display-4">أهلاً بك في متجرنا ✨</h1>
+                        <p class="lead">اكتشف أحدث المنتجات التقنية بأسعار تنافسية</p>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="bg-dark d-flex align-items-center justify-content-center text-white text-center" style="height: 350px; background: linear-gradient(45deg, #212529, #495057);">
+                    <div>
+                        <h1 class="fw-bold display-4">عروض حصرية 🎁</h1>
+                        <p class="lead">توصيل سريع لكافة محافظات العراق</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#mainSlider" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#mainSlider" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+
+    <div class="text-center mb-4">
+        <h4 class="fw-bold mb-3">تصفح حسب الفئة</h4>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a href="/" class="btn btn-outline-dark rounded-pill px-4 {% if not selected_category %}active{% endif %}">الكل</a>
+            {% for cat in categories %}
+                <a href="/?category={{ cat.id }}" class="btn btn-outline-dark rounded-pill px-4 {% if selected_category == cat.id|stringformat:'i' %}active{% endif %}">
+                    {{ cat.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    {% if query %}
+        <div class="alert alert-light border shadow-sm d-flex justify-content-between align-items-center rounded-4 mb-4">
+            <span class="fs-5 text-dark">نتائج البحث عن: <strong>"{{ query }}"</strong></span>
+            <a href="/" class="btn btn-sm btn-secondary rounded-pill">إلغاء البحث ✖</a>
+        </div>
+    {% endif %}
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 product-card" style="border-radius: 20px; overflow: hidden;">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                {% endif %}
+
+                <div class="card-body text-end">
+                    <h5 class="card-title fw-bold mb-2">{{ product.name }}</h5>
+                    <p class="text-muted small mb-3">{{ product.description|truncatewords:8 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-primary fw-bold fs-5">{{ product.price }} د.ع</span>
+                        <a href="{% url 'product-detail' product.slug %}" class="text-decoration-none text-muted small">المزيد..</a>
+                    </div>
+
+                    <button class="btn btn-dark w-100 rounded-pill fw-bold py-2" 
+                            onclick="addToCart('{{ product.id }}', '{{ product.name }}', '{{ product.price }}', '{% if product.image %}{{ product.image.url }}{% endif %}')">
+                        إضافة للسلة 🛒
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="mb-3"><i class="fas fa-search fa-4x text-light"></i></div>
+            <h3 class="text-muted">لم نجد أي منتجات!</h3>
+            <a href="/" class="btn btn-primary mt-3 rounded-pill px-4">تصفح كل المنتجات</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function addToCart(id, name, price, imageUrl) {
+    // 1. جلب السلة
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    
+    // 2. البحث عن المنتج
+    let existingItem = cart.find(item => item.id === id);
+
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        // 3. إضافة المنتج مع الصورة
+        cart.push({
+            id: id,
+            name: name,
+            price: parseFloat(price),
+            image: imageUrl || 'https://via.placeholder.com/150', // صورة افتراضية إذا لم توجد
+            quantity: 1
+        });
+    }
+    
+    // 4. حفظ وتحديث العداد
+    localStorage.setItem('cart', JSON.stringify(cart));
+    if (typeof updateCartBadge === "function") updateCartBadge();
+
+    // تنبيه بسيط
+    alert('تم إضافة ' + name + ' إلى سلتك! ✅');
+}
+</script>
+
+<style>
+    .product-card { transition: all 0.3s ease-in-out; }
+    .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
+    .btn-outline-dark.active { background-color: #212529; color: white; }
+</style>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}إتمام الطلب - الشحن والدفع{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-end">
+    <div class="row">
+        <div class="col-md-4 order-md-2 mb-4">
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-primary">سلتك</span>
+                <span class="badge bg-primary rounded-pill" id="cart-count">0</span>
+            </h4>
+            <ul class="list-group mb-3" id="checkout-items">
+                </ul>
+            <li class="list-group-item d-flex justify-content-between bg-light">
+                <strong id="checkout-total">0</strong>
+                <span>المجموع (د.ع)</span>
+            </li>
+        </div>
+
+        <div class="col-md-8 order-md-1">
+            <h4 class="mb-3 fw-bold">معلومات الشحن</h4>
+            <form id="checkout-form" class="card p-4 shadow-sm border-0" style="border-radius: 15px;">
+                <div class="mb-3">
+                    <label for="name" class="form-label">الاسم الكامل</label>
+                    <input type="text" class="form-control" id="name" placeholder="اكتب اسمك هنا" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="address" class="form-label">العنوان بالتفصيل</label>
+                    <input type="text" class="form-control" id="address" placeholder="المحافظة / المنطقة / الزقاق" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="phone" class="form-label">رقم الهاتف</label>
+                    <input type="tel" class="form-control" id="phone" placeholder="07XXXXXXXX" required>
+                </div>
+
+                <hr class="my-4">
+                <button class="btn btn-success btn-lg w-100 fw-bold" type="submit">تأكيد الطلب الآن ✅</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. عرض ملخص السلة
+    function loadSummary() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let itemsList = document.getElementById('checkout-items');
+        let total = 0;
+        
+        document.getElementById('cart-count').innerText = cart.length;
+        itemsList.innerHTML = '';
+
+        cart.forEach(item => {
+            total += item.price * item.quantity;
+            itemsList.innerHTML += `
+                <li class="list-group-item d-flex justify-content-between lh-sm">
+                    <div>
+                        <h6 class="my-0">${item.name}</h6>
+                        <small class="text-muted">الكمية: ${item.quantity}</small>
+                    </div>
+                    <span class="text-muted">${item.price * item.quantity} د.ع</span>
+                </li>
+            `;
+        });
+        document.getElementById('checkout-total').innerText = total;
+    }
+
+    // 2. إرسال الطلب للسيرفر
+    document.getElementById('checkout-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if(cart.length === 0) {
+            alert('سلتك فارغة!');
+            return;
+        }
+
+        // تحضير البيانات بصيغة يفهمها الباك أند
+        let orderData = {
+            order_items: cart.map(item => ({
+                product: item.id,
+                quantity: item.quantity
+            })),
+            // هنا ممكن نرسل العنوان والتلفون إذا عدلنا مودل الطلبات لاحقاً
+        };
+
+        // إرسال البيانات باستخدام Fetch API
+        fetch('/api/orders/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // 'X-CSRFToken': '{{ csrf_token }}' // مهم جداً للـ Security
+            },
+            body: JSON.stringify(orderData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('تم استلام طلبك بنجاح! رقم الطلب: ' + data.order_id);
+            localStorage.removeItem('cart'); // مسح السلة بعد النجاح
+            window.location.href = '/'; // العودة للرئيسية
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء إرسال الطلب، حاول مرة أخرى.');
+        });
+    });
+
+    loadSummary();
+</script>
+{% endblock %}
