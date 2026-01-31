@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-dark text-white p-4 text-center">
+                <h3 class="mb-0">
+                    <i class="fas fa-box-open me-2"></i>
+                    {{ 'تعديل بيانات المنتج' if product else 'إضافة بضاعة جديدة للمتجر' }}
+                </h3>
+            </div>
+            
+            <div class="card-body p-4 bg-white">
+                <form method="POST" enctype="multipart/form-data">
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">اسم المنتج / البضاعة</label>
+                        <input type="text" name="name" class="form-control form-control-lg" 
+                               placeholder="مثلاً: آيفون 15 برو"
+                               value="{{ product.name if product else '' }}" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">السعر ($)</label>
+                            <input type="number" step="0.01" name="price" class="form-control" 
+                                   placeholder="0.00"
+                                   value="{{ product.price if product else '' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">الكمية المتوفرة (Stock)</label>
+                            <input type="number" name="stock" class="form-control" 
+                                   placeholder="مثلاً: 10"
+                                   value="{{ product.stock if product else '' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">وصف البضاعة</label>
+                        <textarea name="description" class="form-control" rows="4" 
+                                  placeholder="اكتب تفاصيل المنتج ومميزاته هنا..." 
+                                  required>{{ product.description if product else '' }}</textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">صورة المنتج</label>
+                        {% if product %}
+                            <div class="mb-2">
+                                <small class="text-muted d-block mb-1">الصورة الحالية:</small>
+                                <img src="{{ url_for('static', filename='img/' + product.image_file) }}" 
+                                     class="img-thumbnail" style="width: 120px; height: 120px; object-fit: cover;">
+                            </div>
+                        {% endif %}
+                        <input type="file" name="image" class="form-control" accept="image/*" 
+                               {% if not product %}required{% endif %}>
+                        <small class="text-muted">يفضل استخدام صور واضحة وبخلفية بيضاء.</small>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                            <i class="fas fa-check-circle me-1"></i>
+                            {{ 'تحديث المنتج' if product else 'نشر المنتج الآن' }}
+                        </button>
+                        <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">إلغاء والعودة للرئيسية</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

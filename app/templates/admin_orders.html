@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">إدارة طلبات الزبائن 📋</h2>
+        <span class="badge bg-primary fs-6">إجمالي الطلبات: {{ orders|length }}</span>
+    </div>
+
+    {% if orders %}
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <th>الزبون</th>
+                        <th>المنتجات</th>
+                        <th>التاريخ</th>
+                        <th>الإجمالي</th>
+                        <th>الحالة</th>
+                        <th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td><strong>#{{ order.id }}</strong></td>
+                        <td>{{ order.customer.username }}<br><small class="text-muted">{{ order.customer.email }}</small></td>
+                        <td style="max-width: 250px;">{{ order.products_ordered }}</td>
+                        <td>{{ order.date_ordered.strftime('%Y-%m-%d') }}</td>
+                        <td class="text-success fw-bold">${{ "{:,.2f}".format(order.total_price) }}</td>
+                        <td>
+                            <span class="badge {% if order.status == 'تم التوصيل' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <form action="{{ url_for('update_order_status', order_id=order.id) }}" method="POST" class="d-flex gap-1">
+                                <select name="status" class="form-select form-select-sm" style="width: auto;">
+                                    <option value="قيد التنفيذ">قيد التنفيذ</option>
+                                    <option value="تم الشحن">تم الشحن</option>
+                                    <option value="تم التوصيل">تم التوصيل</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-dark">تحديث</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center py-5">
+        <h4>لا توجد طلبات بعد!</h4>
+        <p>بمجرد أن يقوم زبون بشراء منتج، سيظهر هنا.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

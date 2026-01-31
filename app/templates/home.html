@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="p-5 mb-4 bg-dark rounded-4 shadow-lg text-white position-relative overflow-hidden" style="background: linear-gradient(45deg, #1a1a1a, #434343);">
+    <div class="container-fluid py-5 position-relative" style="z-index: 2;">
+        <h1 class="display-5 fw-bold text-warning">أهلاً بك في متجرنا الجديد ✨</h1>
+        <p class="col-md-8 fs-4">اكتشف أحدث المنتجات العالمية بجودة استثنائية وأسعار لا تقبل المنافسة.</p>
+        {% if current_user.is_authenticated and current_user.is_admin %}
+            <a href="{{ url_for('new_product') }}" class="btn btn-warning btn-lg px-4 rounded-pill fw-bold">إضافة بضاعة جديدة <i class="fas fa-plus-circle"></i></a>
+        {% endif %}
+    </div>
+    <div class="position-absolute bottom-0 end-0 opacity-25 p-4 d-none d-md-block">
+        <i class="fas fa-shopping-bag fa-10x"></i>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center gap-2 mb-5 overflow-auto pb-2">
+    <button class="btn btn-outline-dark rounded-pill px-4 active">الكل</button>
+    <button class="btn btn-outline-dark rounded-pill px-4">إلكترونيات</button>
+    <button class="btn btn-outline-dark rounded-pill px-4">إكسسوارات</button>
+    <button class="btn btn-outline-dark rounded-pill px-4">أزياء</button>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% if products %}
+        {% for product in products %}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm custom-card">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename='img/' + product.image_file) }}" 
+                             class="card-img-top rounded-top-4" alt="{{ product.name }}"
+                             style="height: 280px; object-fit: cover;">
+                        <span class="position-absolute top-0 end-0 m-3 badge bg-danger fs-6 rounded-pill">
+                            ${{ "{:,.2f}".format(product.price) }}
+                        </span>
+                    </div>
+                    
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title fw-bold mb-2">{{ product.name }}</h5>
+                        <p class="card-text text-muted small mb-4">{{ product.description[:100] }}...</p>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-dark py-2 rounded-pill fw-bold shadow-sm">
+                                <i class="fas fa-cart-plus me-2"></i> أضف للسلة
+                            </a>
+                            
+                            {% if current_user.is_authenticated and current_user.is_admin %}
+                                <div class="btn-group mt-2">
+                                    <a href="{{ url_for('update_product', product_id=product.id) }}" class="btn btn-sm btn-outline-secondary">تعديل</a>
+                                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ product.id }}">حذف</button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="deleteModal{{ product.id }}" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title">تأكيد الحذف</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body py-4">
+                            هل أنت متأكد من رغبتك في إزالة المنتج <strong>"{{ product.name }}"</strong> نهائياً؟
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">تراجع</button>
+                            <form action="{{ url_for('delete_product', product_id=product.id) }}" method="POST">
+                                <button type="submit" class="btn btn-danger px-4">حذف الآن</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="mb-3"><i class="fas fa-search fa-4x text-muted"></i></div>
+            <h3 class="text-muted">لم نجد ما تبحث عنه.. جرب كلمات أخرى!</h3>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    /* تأثيرات جمالية إضافية */
+    .custom-card {
+        transition: all 0.3s ease;
+        border-radius: 20px;
+    }
+    .custom-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+    }
+    .btn-dark {
+        background-color: #1a1a1a;
+        transition: transform 0.2s;
+    }
+    .btn-dark:hover {
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}

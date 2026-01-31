@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4 fw-bold text-dark">سلة المشتريات 🛍️</h2>
+    {% if display_cart %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="list-group list-group-flush">
+                    {% for item in display_cart %}
+                    <div class="list-group-item p-3">
+                        <div class="row align-items-center">
+                            <div class="col-2">
+                                <img src="{{ url_for('static', filename='img/' + item.image_file) }}" class="img-fluid rounded">
+                            </div>
+                            <div class="col-6">
+                                <h6 class="mb-0 fw-bold">{{ item.name }}</h6>
+                                <small class="text-muted">قطعة واحدة</small>
+                            </div>
+                            <div class="col-4 text-end">
+                                <span class="fw-bold text-primary">${{ "{:,.2f}".format(item.price) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 p-4">
+                <h5 class="mb-3 fw-bold">ملخص الطلب</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>المجموع الفرعي</span>
+                    <span>${{ "{:,.2f}".format(total) }}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="h5 fw-bold">الإجمالي</span>
+                    <span class="h5 fw-bold text-primary">${{ "{:,.2f}".format(total) }}</span>
+                </div>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('checkout') }}" class="btn btn-success btn-lg shadow-sm">تأكيد الشراء 💳</a>
+                    <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">متابعة التسوق</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <h3 class="text-muted">سلتك فارغة</h3>
+        <a href="{{ url_for('home') }}" class="btn btn-primary mt-3">اذهب للمتجر</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
