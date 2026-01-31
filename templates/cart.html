@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}سلة المشتريات{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-end">
+    <h2 class="fw-bold mb-4 border-bottom pb-3">🛒 سلة المشتريات</h2>
+    
+    <div id="cart-container" class="row">
+        <div class="col-md-8">
+            <div class="table-responsive bg-white shadow-sm rounded-4 p-3">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>المنتج</th>
+                            <th>السعر</th>
+                            <th>الكمية</th>
+                            <th>المجموع</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-items">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-4 p-4 bg-light">
+                <h5 class="fw-bold mb-3">ملخص الطلب</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>المجموع الكلي:</span>
+                    <span class="fw-bold text-primary"><span id="total-price">0</span> د.ع</span>
+                </div>
+                <hr>
+                <a href="/checkout/" class="btn btn-success btn-lg w-100 rounded-pill fw-bold">إتمام الطلب ✅</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function displayCart() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let cartTable = document.getElementById('cart-items');
+        let total = 0;
+        cartTable.innerHTML = '';
+
+        if(cart.length === 0) {
+            document.getElementById('cart-container').innerHTML = '<div class="text-center py-5"><h3>السلة فارغة 😅</h3><a href="/" class="btn btn-primary mt-3 rounded-pill">تسوق الآن</a></div>';
+            return;
+        }
+
+        cart.forEach((item, index) => {
+            let itemTotal = item.price * item.quantity;
+            total += itemTotal;
+            cartTable.innerHTML += `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="${item.image || 'https://via.placeholder.com/50'}" class="rounded-3 ms-3" style="width: 50px; height: 50px; object-fit: cover;">
+                            <span class="fw-bold">${item.name}</span>
+                        </div>
+                    </td>
+                    <td>${item.price} د.ع</td>
+                    <td>${item.quantity}</td>
+                    <td>${itemTotal} د.ع</td>
+                    <td><button class="btn btn-outline-danger btn-sm border-0" onclick="removeFromCart(${index})"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `;
+        });
+        document.getElementById('total-price').innerText = total;
+    }
+
+    function removeFromCart(index) {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        displayCart();
+        if (typeof updateCartBadge === "function") updateCartBadge();
+    }
+
+    displayCart();
+</script>
+{% endblock %}

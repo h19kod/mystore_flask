@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}تسجيل الدخول{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-5">
+        <div class="card shadow-lg border-0 rounded-4 p-4">
+            <div class="card-body text-end">
+                <h2 class="fw-bold mb-4 text-center">مرحباً بك مجدداً 👋</h2>
+                <p class="text-muted text-center mb-4">الرجاء تسجيل الدخول للوصول إلى حسابك</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">اسم المستخدم</label>
+                        <input type="text" name="username" class="form-control rounded-pill border-2 p-2" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">كلمة المرور</label>
+                        <input type="password" name="password" class="form-control rounded-pill border-2 p-2" required>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold">دخول</button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-4">
+                    <p class="small text-muted">ليس لديك حساب؟ <a href="/register/" class="text-primary text-decoration-none fw-bold">أنشئ حساباً جديداً</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

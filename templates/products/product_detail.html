@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row bg-white p-4 shadow-sm rounded-4">
+        <div class="col-md-6 mb-4 text-center">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" class="img-fluid rounded-4 shadow-sm" style="max-height: 450px;">
+            {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center rounded-4" style="height: 400px;">
+                    <i class="fas fa-image text-muted fa-4x"></i>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6 text-end">
+            <span class="badge bg-soft-primary text-primary mb-2 p-2 bg-light">{{ product.category.name }}</span>
+            <h1 class="fw-bold mb-3">{{ product.name }}</h1>
+            <h3 class="text-success fw-bold mb-4">{{ product.price }} د.ع</h3>
+            
+            <div class="p-3 bg-light rounded-3 mb-4">
+                <h5 class="fw-bold">وصف المنتج:</h5>
+                <p class="text-muted" style="line-height: 1.8;">{{ product.description }}</p>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-dark btn-lg py-3 rounded-pill" 
+                        onclick="addToCartFromDetail('{{ product.id }}', '{{ product.name }}', '{{ product.price }}')">
+                    إضافة إلى السلة <i class="fas fa-cart-plus ms-2"></i>
+                </button>
+                <a href="/" class="btn btn-link text-muted">العودة للتسوق</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function addToCartFromDetail(id, name, price) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let productPrice = parseFloat(price);
+    let existingItem = cart.find(item => item.id === id);
+
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({ id: id, name: name, price: productPrice, quantity: 1 });
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    // تحديث العداد في الـ Navbar فوراً
+    if (typeof updateCartBadge === "function") updateCartBadge();
+    
+    alert('تمت إضافة ' + name + ' إلى السلة!');
+}
+</script>
+{% endblock %}
